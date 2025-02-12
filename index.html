@@ -3,9 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <!-- Primary Meta Tags -->
-    <title>Jake Schroeder - Articles</title>
+    <title>Jake Schroeder - Engineer, Designer, Entrepreneur</title>
     <meta name="title" content="Jake Schroeder - Engineer, Designer, Entrepreneur" />
     <meta
       name="description"
@@ -22,14 +20,28 @@
         transform: translate(-50%, -50%);
         display: flex;
         flex-direction: column;
-        align-items: center;
+        z-index: 10;
       "
     >
-      <h1 style="font-weight: normal">JAKE SCHROEDER'S INDEX</h1>
-      <h2 style="font-weight: normal; text-align: center">
+      <h1 style="font-weight: normal; text-align: center">JAKE SCHROEDER'S INDEX</h1>
+      <h2 style="font-weight: normal; text-align: center; padding-top: 14px; line-height: 20px">
         You found my index to the www in a vim editor<br />
         feel free to look around.
       </h2>
+      <nav style="padding-top: 14px; display: flex">
+        <ul style="list-style: none; padding: 0px; line-height: 18px">
+          <li>type :help<span style="color: #707070">&lt;Enter&gt;</span></li>
+          <li>type :about<span style="color: #707070">&lt;Enter&gt;</span></li>
+          <li>type :principles<span style="color: #707070">&lt;Enter&gt;</span></li>
+          <li>type :articles<span style="color: #707070">&lt;Enter&gt;</span></li>
+        </ul>
+        <ul style="list-style: none; padding: 0px; line-height: 18px">
+          <li>for instructions</li>
+          <li>to open my <a href="./about.html">about me</a></li>
+          <li>to open my <a href="./principles.html">principles</a></li>
+          <li>to open my <a href="./articles.html">articles</a></li>
+        </ul>
+      </nav>
     </main>
     <div id="vim-emulator"></div>
     <script src="./vim-emulator.js"></script>
