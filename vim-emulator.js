@@ -13,12 +13,12 @@ function initVimEditor(page) {
       "",
       "COMMANDS:",
       "",
-      ":help<Enter>      - Show these instructions",
-      ":home<Enter>     - Show home screen",
-      ":about<Enter>     - Show about me",
-      ":principles<Enter> - Show core principles",
-      ":articles<Enter>  - Show all articles",
-      ":q<Enter>         - Quit editor",
+      ":help<Enter>        - Show these instructions",
+      ":home<Enter>        - Show home screen",
+      ":about<Enter>       - Show about me",
+      ":principles<Enter>  - Show core principles",
+      ":articles<Enter>    - Show all articles",
+      ":q<Enter>           - Quit editor",
       "",
       "NAVIGATION:",
       "",
@@ -28,6 +28,8 @@ function initVimEditor(page) {
       "l - move right",
       "",
       "++++++++++++++++++++++++++++++++++++++++++++++++++++++++",
+      "",
+      { text: "../index.html", href: "./index.html" },
     ],
     about: [
       "",
@@ -54,6 +56,8 @@ function initVimEditor(page) {
       "Work as a Design Engineer @Axiom",
       "",
       "++++++++++++++++++++++++++++++++++++++++++++++++++++++++",
+      "",
+      { text: "../index.html", href: "./index.html" },
     ],
     principles: [
       "",
@@ -72,15 +76,29 @@ function initVimEditor(page) {
       ">> Life is a paradox.",
       "",
       "++++++++++++++++++++++++++++++++++++++++++++++++++++++++",
+      "",
+      { text: "../index.html", href: "./index.html" },
     ],
     articles: [
-      "ARTICLES DIR VIEW:",
-      "move cursor to line and type<Enter> to read",
+      "",
+      "JAKE'S ARTICLES",
+      "",
       "++++++++++++++++++++++++++++++++++++++++++++++++++++++++",
-      "../",
-      "<Using Good AI to Fights Bad AI>",
-      "<How to Build a 3D FPS Game in the Web Browser>",
-      "<What Really Is Complexity Anyway?>",
+      "move cursor to line and type<Enter> to read",
+      { text: "Using Good AI to Fights Bad AI", href: "./articles/using-good-ai-to-fight-bad-ai.html" },
+      { text: "How to Build a 3D FPS Game in the Web Browser", href: "./articles/3d-fps-browser.html" },
+      { text: "What Really Is Complexity Anyway?", href: "./articles/complexity.html" },
+      "++++++++++++++++++++++++++++++++++++++++++++++++++++++++",
+      "",
+      { text: "../index.html", href: "./index.html" },
+    ],
+    cheats: [
+      "",
+      "Now I know what kind of person you are",
+      "",
+      "++++++++++++++++++++++++++++++++++++++++++++++++++++++++",
+      "",
+      { text: "../index.html", href: "./index.html" },
     ],
   };
 
@@ -131,12 +149,17 @@ function initVimEditor(page) {
   }
 
   function getVisibleLines() {
-    const displayLines = [...lines];
+    const displayLines = lines.map((line) => (typeof line === "object" ? line.text : line));
     const visibleLines = displayLines.slice(scrollOffset, scrollOffset + viewportSize.rows);
     while (visibleLines.length < viewportSize.rows) {
       visibleLines.push("~");
     }
     return visibleLines;
+  }
+
+  function getCurrentLineLink() {
+    const currentLine = lines[cursorPos.line];
+    return typeof currentLine === "object" ? currentLine.href : null;
   }
 
   function render() {
@@ -158,6 +181,22 @@ function initVimEditor(page) {
       }
 
       const actualLineIndex = scrollOffset + i;
+      const currentLine = lines[actualLineIndex];
+      const isLink = typeof currentLine === "object";
+
+      function createLinkElement(href, content) {
+        const linkElement = document.createElement("a");
+        linkElement.href = href;
+
+        if (typeof content === "string") {
+          linkElement.textContent = content;
+        } else if (Array.isArray(content)) {
+          content.forEach((element) => linkElement.appendChild(element));
+        }
+
+        return linkElement;
+      }
+
       if (actualLineIndex === cursorPos.line) {
         const beforeCursor = line.slice(0, cursorPos.col);
         const atCursor = line[cursorPos.col] || " ";
@@ -181,11 +220,20 @@ function initVimEditor(page) {
           `;
 
         cursorSpan.appendChild(charUnderCursor);
-        lineDiv.appendChild(beforeText);
-        lineDiv.appendChild(cursorSpan);
-        lineDiv.appendChild(afterText);
+
+        if (isLink) {
+          lineDiv.appendChild(createLinkElement(currentLine.href, [beforeText, cursorSpan, afterText]));
+        } else {
+          lineDiv.appendChild(beforeText);
+          lineDiv.appendChild(cursorSpan);
+          lineDiv.appendChild(afterText);
+        }
       } else {
-        lineDiv.textContent = line || " ";
+        if (isLink) {
+          lineDiv.appendChild(createLinkElement(currentLine.href, line));
+        } else {
+          lineDiv.textContent = line || " ";
+        }
       }
 
       container.appendChild(lineDiv);
@@ -231,6 +279,12 @@ function initVimEditor(page) {
 
   function handleNormalMode(e) {
     switch (e.key) {
+      case "Enter":
+        const link = getCurrentLineLink();
+        if (link) {
+          window.location.href = link;
+        }
+        break;
       case ":":
         mode = "command";
         commandBuffer = ":";
@@ -238,38 +292,35 @@ function initVimEditor(page) {
       case "i":
         mode = "insert";
         break;
-      // Left movement
       case "h":
       case "ArrowLeft":
         if (cursorPos.col > 0) cursorPos.col--;
         break;
-      // Right movement
       case "l":
       case "ArrowRight":
-        if (cursorPos.col < (lines[cursorPos.line]?.length || 0)) cursorPos.col++;
+        if (cursorPos.col < (getVisibleLines()[cursorPos.line - scrollOffset]?.length || 0)) cursorPos.col++;
         break;
-      // Down movement
       case "j":
       case "ArrowDown":
         if (cursorPos.line < lines.length - 1) {
           cursorPos.line++;
-          const lineLength = lines[cursorPos.line].length;
+          const lineLength = getVisibleLines()[cursorPos.line - scrollOffset].length;
           cursorPos.col = Math.min(cursorPos.col, lineLength);
           scrollToCursor();
         }
         break;
-      // Up movement
       case "k":
       case "ArrowUp":
         if (cursorPos.line > 0) {
           cursorPos.line--;
-          const lineLength = lines[cursorPos.line].length;
+          const lineLength = getVisibleLines()[cursorPos.line - scrollOffset].length;
           cursorPos.col = Math.min(cursorPos.col, lineLength);
           scrollToCursor();
         }
         break;
     }
   }
+
   function handleCommandMode(e) {
     if (e.key === "Enter") {
       const cmd = commandBuffer.slice(1);
@@ -290,7 +341,7 @@ function initVimEditor(page) {
     if (e.key === "Escape") {
       mode = "normal";
     } else if (e.key === "Enter") {
-      const currentLine = lines[cursorPos.line];
+      const currentLine = getVisibleLines()[cursorPos.line - scrollOffset];
       const beforeCursor = currentLine.slice(0, cursorPos.col);
       const afterCursor = currentLine.slice(cursorPos.col);
 
@@ -302,18 +353,18 @@ function initVimEditor(page) {
       scrollToCursor();
     } else if (e.key === "Backspace") {
       if (cursorPos.col === 0 && cursorPos.line > 0) {
-        const currentLine = lines[cursorPos.line];
+        const currentLine = getVisibleLines()[cursorPos.line - scrollOffset];
         lines.splice(cursorPos.line, 1);
         cursorPos.line--;
-        cursorPos.col = lines[cursorPos.line].length;
+        cursorPos.col = getVisibleLines()[cursorPos.line - scrollOffset].length;
         lines[cursorPos.line] += currentLine;
       } else if (cursorPos.col > 0) {
-        const currentLine = lines[cursorPos.line];
+        const currentLine = getVisibleLines()[cursorPos.line - scrollOffset];
         lines[cursorPos.line] = currentLine.slice(0, cursorPos.col - 1) + currentLine.slice(cursorPos.col);
         cursorPos.col--;
       }
     } else if (e.key.length === 1) {
-      const currentLine = lines[cursorPos.line];
+      const currentLine = getVisibleLines()[cursorPos.line - scrollOffset];
       lines[cursorPos.line] = currentLine.slice(0, cursorPos.col) + e.key + currentLine.slice(cursorPos.col);
       cursorPos.col++;
     }
@@ -342,13 +393,13 @@ function initVimEditor(page) {
     if (e.deltaY > 0) {
       if (cursorPos.line < lines.length - 1) {
         cursorPos.line++;
-        const lineLength = lines[cursorPos.line].length;
+        const lineLength = getVisibleLines()[cursorPos.line - scrollOffset].length;
         cursorPos.col = Math.min(cursorPos.col, lineLength);
       }
     } else {
       if (cursorPos.line > 0) {
         cursorPos.line--;
-        const lineLength = lines[cursorPos.line].length;
+        const lineLength = getVisibleLines()[cursorPos.line - scrollOffset].length;
         cursorPos.col = Math.min(cursorPos.col, lineLength);
       }
     }
