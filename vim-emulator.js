@@ -1,17 +1,18 @@
 function initVimEditor(page) {
   const pageContents = {
-    Help: [
+    help: [
       "",
       "JAKE'S VIM SIMULATOR HELP",
-      "----------",
       "",
-      "MODES",
-      "------",
+      "++++++++++++++++++++++++++++++++++++++++++++++++++++++++",
+      "",
+      "MODES:",
+      "",
       "Normal Mode - Press <Esc> to enter",
       "Insert Mode - Press i to enter",
       "",
-      "COMMANDS",
-      "--------",
+      "COMMANDS:",
+      "",
       ":help<Enter>      - Show these instructions",
       ":home<Enter>     - Show home screen",
       ":about<Enter>     - Show about me",
@@ -19,15 +20,68 @@ function initVimEditor(page) {
       ":articles<Enter>  - Show all articles",
       ":q<Enter>         - Quit editor",
       "",
-      "NAVIGATION",
-      "----------",
+      "NAVIGATION:",
+      "",
       "h - move left",
       "j - move down",
       "k - move up",
       "l - move right",
       "",
+      "++++++++++++++++++++++++++++++++++++++++++++++++++++++++",
     ],
-    About: ["Welcome to the About page", "Here you can learn more about this editor"],
+    about: [
+      "",
+      "WHAT ABOUT JAKE?",
+      "",
+      "++++++++++++++++++++++++++++++++++++++++++++++++++++++++",
+      "",
+      "DISCIPLINES:",
+      "",
+      "<ENGINEER/>      :   I like solving engineering problems",
+      "*DESIGNER*       :   I like solving design problems",
+      "!ENTREPRENEUR!   :   I like solving business problems",
+      "",
+      "++++++++++++++++++++++++++++++++++++++++++++++++++++++++",
+      "",
+      "ABOUT ME:",
+      "",
+      "Grew up in Chicago, IL",
+      "Started programming at age 12",
+      "Got my first programming job at age 15",
+      "Built a software start-up with my dad",
+      "Lived abroad for a few years after college",
+      "Now live in California",
+      "Work as a Design Engineer @Axiom",
+      "",
+      "++++++++++++++++++++++++++++++++++++++++++++++++++++++++",
+    ],
+    principles: [
+      "",
+      "JAKE'S FIRST PRINCIPLES",
+      "",
+      "++++++++++++++++++++++++++++++++++++++++++++++++++++++++",
+      "",
+      ">> Humans know no truth, only useful explanations.",
+      ">> Science lets us measure how useful an explanation is.",
+      ">> Computers are just VMs themselves.",
+      ">> Art is the closest humans can get to the Universe.",
+      ">> Credentialists believe more in bureaucracy than innovation.",
+      ">> Clear and serious purpose beats having excess wealth.",
+      ">> In the absence of a religion man will invent his own.",
+      ">> Water invented man to carry itself uphill.",
+      ">> Life is a paradox.",
+      "",
+      "++++++++++++++++++++++++++++++++++++++++++++++++++++++++",
+    ],
+    articles: [
+      "ARTICLES DIR VIEW:",
+      "move cursor to line and type<Enter> to read",
+      "++++++++++++++++++++++++++++++++++++++++++++++++++++++++",
+      "../",
+      "<Using Good AI to Fights Bad AI>",
+      "<How to Build a 3D FPS Game in the Web Browser>",
+      "<What Really Is Complexity Anyway?>",
+    ],
   };
 
   let lines = pageContents[page] || [""];
@@ -159,6 +213,12 @@ function initVimEditor(page) {
     if (cmd === "about") {
       window.location.href = "./about.html";
     }
+    if (cmd === "principles") {
+      window.location.href = "./principles.html";
+    }
+    if (cmd === "articles") {
+      window.location.href = "./articles.html";
+    }
     if (cmd === "q") {
       window.location.href = "https://www.google.com";
     }
@@ -178,13 +238,19 @@ function initVimEditor(page) {
       case "i":
         mode = "insert";
         break;
+      // Left movement
       case "h":
+      case "ArrowLeft":
         if (cursorPos.col > 0) cursorPos.col--;
         break;
+      // Right movement
       case "l":
+      case "ArrowRight":
         if (cursorPos.col < (lines[cursorPos.line]?.length || 0)) cursorPos.col++;
         break;
+      // Down movement
       case "j":
+      case "ArrowDown":
         if (cursorPos.line < lines.length - 1) {
           cursorPos.line++;
           const lineLength = lines[cursorPos.line].length;
@@ -192,7 +258,9 @@ function initVimEditor(page) {
           scrollToCursor();
         }
         break;
+      // Up movement
       case "k":
+      case "ArrowUp":
         if (cursorPos.line > 0) {
           cursorPos.line--;
           const lineLength = lines[cursorPos.line].length;
@@ -202,7 +270,6 @@ function initVimEditor(page) {
         break;
     }
   }
-
   function handleCommandMode(e) {
     if (e.key === "Enter") {
       const cmd = commandBuffer.slice(1);
@@ -252,7 +319,7 @@ function initVimEditor(page) {
     }
   }
 
-  container.addEventListener("keydown", (e) => {
+  window.addEventListener("keydown", (e) => {
     e.preventDefault();
 
     switch (mode) {
@@ -270,7 +337,7 @@ function initVimEditor(page) {
     render();
   });
 
-  container.addEventListener("wheel", (e) => {
+  window.addEventListener("wheel", (e) => {
     const linesBefore = cursorPos.line;
     if (e.deltaY > 0) {
       if (cursorPos.line < lines.length - 1) {
